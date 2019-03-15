@@ -1,0 +1,13 @@
+.discount {
+    background-color: red;
+    position: absolute;
+    top : 20px;
+    right: 0px;
+    width: 55px;
+    color: white;
+    font-weight: 500px;
+    text-align: center;
+}
+.img {
+    cursor: pointer;
+}

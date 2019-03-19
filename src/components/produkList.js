@@ -15,18 +15,46 @@ class Product extends React.Component {
     }
 
     getDataProduct =()=> {
+        
         Axios.get(urlAPI+"/products")
         .then((res) => {
             this.setState({listProduct :res.data, listProduct1 : res.data })
         })
         .catch ((err)=> console.log(err))
-      
     }
 
 
     
     onadd = ()=>{
-           
+        var quantity = this.state.quantity
+        var idUser = this.props.id
+        var namaUser = this.props.nama
+        var product = this.state.listProduct1.nama
+        var harga = this.state.listProduct1.harga
+        var kategori = this.state.listProduct1.kategori
+        var deskripsi = this.state.listProduct1.deskripsi
+        var img = this.state.listProduct1.img
+        var productID = this.state.listProduct1.id
+
+        var newdata = {idUser, namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
+
+        // this.props.addcartglobal(newdata)
+
+        Axios.get(urlAPI+'/cart?idUser='+this.props.id+"&productID="+newdata.productID)
+        .then((res)=>{
+            if (res.data.length>0){
+                quantity = res.data[0].quantity+quantity
+                Axios.put(urlAPI+'/cart/'+res.data[0].id,{...newdata,quantity })
+                swal('added','edit product success','success')
+            }else{
+                Axios.post(urlAPI+'/cart',newdata)
+                swal('added','add product success','success')
+                
+            }
+        })
+        .catch((err)=>{
+                console.log(err)
+        })
 
     }
 

@@ -293,6 +293,7 @@ class CustomPaginationActionsTable extends React.Component {
   totalcheckout =()=>{
     var item = this.state.rows.length
     var total = 0
+    var a = 0
     
 
     for (var i=0 ; i<item ; i++){

@@ -8,7 +8,7 @@ import swal from 'sweetalert'
 import { connect } from "react-redux";
 
 class Product extends React.Component {
-    state = {listProduct : [], quantity:0}
+    state = {listProduct : [], quantity:0, listProduct1 :{}}
  
     componentDidMount(){
         this.getDataProduct()
@@ -16,10 +16,19 @@ class Product extends React.Component {
 
     getDataProduct =()=> {
         Axios.get(urlAPI+"/products")
-        .then((res) => this.setState({listProduct :res.data}))
+        .then((res) => {
+            this.setState({listProduct :res.data, listProduct1 : res.data })
+        })
         .catch ((err)=> console.log(err))
+      
     }
 
+
+    
+    onadd = ()=>{
+           
+
+    }
 
     renderProductJsx = ()=>{
         var jsx = this.state.listProduct.map((val)=>{

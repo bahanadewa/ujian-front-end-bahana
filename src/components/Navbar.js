@@ -11,7 +11,7 @@ import { Collapse,
         DropdownMenu,
         DropdownItem 
     } from 'reactstrap';
-import {resetuser} from '../1.actions'
+import {resetuser,iconCart} from '../1.actions'
 import { Link } from 'react-router-dom';
 import {connect} from 'react-redux';
 import cookie from 'universal-cookie'
@@ -38,6 +38,7 @@ class HeaderKu extends Component{
     onBtnLogout = ()=>{
         objCookie.remove('userData')
         this.props.resetuser()
+        this.props.iconCart(0)
 
     }
 
@@ -139,4 +140,4 @@ class HeaderKu extends Component{
  }
 
 
-export default connect (mapStateToProps,{resetuser}) (HeaderKu);
+export default connect (mapStateToProps,{resetuser,iconCart}) (HeaderKu);

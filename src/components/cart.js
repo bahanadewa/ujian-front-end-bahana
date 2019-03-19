@@ -22,6 +22,7 @@ import {connect} from 'react-redux'
 import PageNotFound from './pageNotFound'
 import cookie from 'universal-cookie'
 import {iconCart} from '../1.actions'
+import { Link } from '@material-ui/core';
 
 
 
@@ -224,6 +225,8 @@ class CustomPaginationActionsTable extends React.Component {
           var productID = res.data[i].productID
           var quantity = res.data[i].quantity
           var newpost = {date,idUser,namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
+          var newpost11 = {date,idUser,namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
+
           Axios.post(urlAPI+'/history',newpost)
             .then ((res)=>{
               swal('Check Out','Check Out success','success')
@@ -231,7 +234,7 @@ class CustomPaginationActionsTable extends React.Component {
             .catch((err)=>{
               console.log(err)
             })
-
+           
             Axios.delete(urlAPI+'/cart/'+this.state.rows[i].id)
                 .then ((res)=>{
                   swal('keranjang kosong','keranjang kosong','success')
@@ -293,9 +296,7 @@ class CustomPaginationActionsTable extends React.Component {
   totalcheckout =()=>{
     var item = this.state.rows.length
     var total = 0
-    var a = 0
-    
-
+     
     for (var i=0 ; i<item ; i++){
         var totalhargabelanja =  this.state.rows[i].harga*this.state.rows[i].quantity
         total += totalhargabelanja
@@ -315,54 +316,104 @@ class CustomPaginationActionsTable extends React.Component {
     {
     return (
         <div className="container">
-                <Paper className={classes.root}>
-                    <div className={classes.tableWrapper}>
-                        <Table className={classes.table}>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>ID</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>PRODUCT</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> KATEGORI </TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>DESKRIPSI</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>IMG</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> HARGA </TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>QTY</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> TOTAL </TableCell>
-                                </TableRow>
-                            </TableHead>
+                <div>
+                 { this.state.rows.length > 0?
+                          <div>
+                            <Paper className={classes.root}>
+                            <div className={classes.tableWrapper}>
+                                <Table className={classes.table}>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>ID</TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>PRODUCT</TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> KATEGORI </TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>DESKRIPSI</TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>IMG</TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> HARGA </TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>QTY</TableCell>
+                                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> TOTAL </TableCell>
+                                        </TableRow>
+                                    </TableHead>
 
-                            <TableBody>
-                                {this.renderJsx()}
-                          
-                            {emptyRows > 0 && (
-                                <TableRow style={{ height: 48 * emptyRows }}>
-                                <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
-                            </TableBody>
-                            <TableFooter>
-                            <TableRow>
-                                <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                colSpan={3}
-                                count={rows.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                SelectProps={{
-                                    native: true,
-                                }}
-                                onChangePage={this.handleChangePage}
-                                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                                ActionsComponent={TablePaginationActionsWrapped}
-                                />
-                            </TableRow>
-                            </TableFooter>
-                        </Table>
-                    </div>
-                </Paper>
+                                    <TableBody>
+                                        {this.renderJsx()}
+                                  
+                                    {emptyRows > 0 && (
+                                        <TableRow style={{ height: 48 * emptyRows }}>
+                                        <TableCell colSpan={6} />
+                                        </TableRow>
+                                    )}
+                                    </TableBody>
+                                    <TableFooter>
+                                    <TableRow>
+                                        <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        colSpan={3}
+                                        count={rows.length}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        SelectProps={{
+                                            native: true,
+                                        }}
+                                        onChangePage={this.handleChangePage}
+                                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                                        ActionsComponent={TablePaginationActionsWrapped}
+                                        />
+                                    </TableRow>
+                                    </TableFooter>
+                                </Table>
+                            </div>
+                        </Paper>
+                        <Paper className="mt-5">
+                          <Table>
+                              <TableHead>
+
+                                  <TableBody>
+                                      <TableRow>
+                                              <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> Total belanja anda </TableCell>
+                                              <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> Rp {this.totalcheckout()} </TableCell>
+
+                                              <Button onClick={this.checkout} animated color="blue" className="ml-auto mt-2" >
+                                                  <Button.Content style={{width:"400px", position:"center"}}  visible> CHECKOUT </Button.Content>
+                                                  <Button.Content hidden>
+                                                      <Icon name='check' />
+                                                  </Button.Content>
+                                              </Button>
+                                    
+                                      </TableRow>
+                                  </TableBody>
+
+                              </TableHead>  
+                          </Table>
+                      </Paper>
+                  </div> : 
+                  <div>
+                    <Paper className="mt-5">
+                          <Table>
+                              <TableHead>
+
+                                  <TableBody>
+                                      <TableRow>
+                                              <Button animated color="blue" className="ml-auto mt-2" >
+                                                  <Button.Content style={{width:"1000px"}}  visible> Your Cart is Empty, Continue Shopping </Button.Content>
+                                                  <Button.Content hidden>
+                                                      <Icon name='check' />
+                                                  </Button.Content>
+                                              </Button>
+                                      </TableRow>
+                                  </TableBody>
+
+                              </TableHead>  
+                          </Table>
+                      </Paper>
+                  </div>
+                 }
+    
+                </div>
+                
                 {/* ========================================== CHECKOUT ================================================== */}
 
-                {
+                {/* {
                   <Paper className="mt-5">
                       <Table>
                           <TableHead>
@@ -385,7 +436,7 @@ class CustomPaginationActionsTable extends React.Component {
                           </TableHead>  
                       </Table>
                   </Paper>
-                }
+                } */}
 
                 
                 {/* ========================================== EDIT PRODUCT SECTION ================================================== */}

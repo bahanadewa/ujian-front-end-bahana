@@ -1,22 +1,25 @@
 import React from "react"
-import axios from 'axios'
+import Axios from 'axios'
 import {Link} from 'react-router-dom'
 import {urlAPI} from '../support/urlAPI'
 import queryString from 'query-string'
 import '../support/product.css'
+import swal from 'sweetalert'
+import { connect } from "react-redux";
 
 class Product extends React.Component {
-    state = {listProduct : []}
+    state = {listProduct : [], quantity:0}
  
     componentDidMount(){
         this.getDataProduct()
     }
 
     getDataProduct =()=> {
-        axios.get(urlAPI+"/products")
+        Axios.get(urlAPI+"/products")
         .then((res) => this.setState({listProduct :res.data}))
         .catch ((err)=> console.log(err))
     }
+
 
     renderProductJsx = ()=>{
         var jsx = this.state.listProduct.map((val)=>{
@@ -42,10 +45,9 @@ class Product extends React.Component {
                       : null
                     }
                     
-
                     <p className="card-text" style={{display:"inline",marginLeft:"20px",fontWeight:'500'}}> Rp {val.harga - (val.harga*val.discount/100)} </p>
 
-                    <input type='button' className="d-block btn btn-primary" value="add to cart" />
+                    <input type='button' className="d-block btn btn-primary" value="add to cart" onClick={this.onadd} />
                     </div>
                 </div>
             )
@@ -67,4 +69,12 @@ class Product extends React.Component {
     }
 }
 
-export default Product
+const  mapStateToProps =(state)=>{
+    return {
+        nama : state.user.username,
+        role : state.user.role,
+        id : state.user.id
+    }
+}
+
+export default connect(mapStateToProps) (Product)

@@ -135,22 +135,16 @@ class CustomPaginationActionsTable extends React.Component {
   getDataApi = () =>{
         var getcookie = objcookie.get('userData')
         Axios.get(urlAPI+'/history?namaUser='+getcookie)
-        .then ((res)=> this.setState({rows : res.data}))
+        .then ((res)=>{
+            this.setState({rows : res.data})
+        })
         .catch((err)=> console.log(err))
+  
   }
 
   handleChangePage = (event, page) => {
     this.setState({ page });
   };
-
-  onBtnDelete = (id)=>{
-        Axios.delete(urlAPI+'/cart/'+id)
-        .then((res)=>{
-            this.getDataApi()
-        })
-        .catch((err)=> console.log(err))
-  }
-
  
   detailhistory = (param) =>{
       this.setState({isEdit:true, editItem : param})
@@ -192,54 +186,8 @@ class CustomPaginationActionsTable extends React.Component {
   }
 
 
-  checkout = () => {
-    var getcookie = objcookie.get('userData')
-    
-    Axios.get(urlAPI+'/cart?idUser'+getcookie)
-      .then((res)=>{
-        for (var i=0; i<this.state.rows.length ; i++){
-          var date = new Date()
-          
-          // var year = date.getFullYear()
-
-          var idUser = res.data[i].idUser
-          var namaUser = res.data[i].namaUser
-          var product = res.data[i].product
-          var harga = res.data[i].harga
-          var kategori = res.data[i].kategori
-          var deskripsi = res.data[i].deskripsi
-          var img = res.data[i].img
-          var productID = res.data[i].productID
-          var quantity = res.data[i].quantity
-          var newpost = {date,idUser,namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
-          Axios.post(urlAPI+'/history',newpost)
-            .then ((res)=>{
-              //swal
-            })
-            .catch((err)=>{
-              console.log(err)
-            })
-
-            Axios.delete(urlAPI+'/cart/'+this.state.rows[i].id)
-                .then ((res)=>{
-                  console.log(res)
-                  this.getDataApi()
-                })
-                .catch((err)=>{
-                  //swal
-                })
-        }
-         
-           
-      })
-      .catch((res)=>{
-        
-      })
-  }
-
-
   renderJsx =()=>{
-      var jsx = this.state.rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((val)=>{
+      var jsx = this.state.rows.map((val)=>{
           return(
             <TableRow key = {val.id}>
                 <TableCell component="th" scope="row">
@@ -254,13 +202,6 @@ class CustomPaginationActionsTable extends React.Component {
                                 <Icon name='edit' />
                             </Button.Content>
                         </Button>
-{/* 
-                        <Button animated color="red" onClick={()=>this.onBtnDelete(val.id)}>
-                            <Button.Content visible>Delete</Button.Content>
-                            <Button.Content hidden>
-                                <Icon name='delete' />
-                            </Button.Content>
-                        </Button> */}
                 </TableCell>
             </TableRow>
           )
@@ -269,7 +210,8 @@ class CustomPaginationActionsTable extends React.Component {
     }; 
 
     renderhistory =()=>{
-      var jsx = this.state.rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((val)=>{
+      var jsx = this.state.rows.map((val)=>{
+      // var jsx = this.state.rows.slice(this.state.page * this.state.rowsPerPage, this.state.page * this.state.rowsPerPage + this.state.rowsPerPage).map((val)=>{
           return(
             <TableRow key = {val.id}>
                 <TableCell component="th" scope="row">
@@ -288,13 +230,6 @@ class CustomPaginationActionsTable extends React.Component {
                                 <Icon name='edit' />
                             </Button.Content>
                         </Button>
-{/* 
-                        <Button animated color="red" onClick={()=>this.onBtnDelete(val.id)}>
-                            <Button.Content visible>Delete</Button.Content>
-                            <Button.Content hidden>
-                                <Icon name='delete' />
-                            </Button.Content>
-                        </Button> */}
                 </TableCell>
             </TableRow>
           )
@@ -305,9 +240,6 @@ class CustomPaginationActionsTable extends React.Component {
   handleChangeRowsPerPage = event => {
     this.setState({ page: 0, rowsPerPage: event.target.value });
   };
-
-
-
 
   render() {
     const { classes } = this.props;

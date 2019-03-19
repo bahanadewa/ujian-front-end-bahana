@@ -130,7 +130,7 @@ class ProductDetail extends React.Component{
                                                 <div style={{marginTop:'10px',
                                                     color:'#606060',
                                                     fontWeight:'700'}}> jumlah </div>
-                                                <input type="number" min={0} className="form-control" style={{width:"60px",marginTop:'13px'}} onChange={this.onChange} ref="number" />
+                                                <input type="number" min={1} className="form-control" style={{width:"60px",marginTop:'13px'}} onChange={this.onChange} ref="number" />
                                         </div>
                                         <div className="col-md-6">
                                                 <div style={{marginTop:'10px',

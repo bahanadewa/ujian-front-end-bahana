@@ -82,16 +82,16 @@ class HeaderKu extends Component{
                                         <div className="input-group border-right" style={{width:"350px"}}>
                                             <input type="text" ref="searchBook" className="form-control" placeholder="Masukkan kata kunci ... " />
                                             <div className="input-group-append mr-2">
-                                                <button className="btn border-secondary" type="button" id="button-addon2"><i className="fas fa-search" /></button>
+                                               <Link to="/cart"><button className="btn border-secondary" type="button" id="button-addon2"><i className="fas fa-search" /></button></Link> 
                                             </div>
                                         </div> 
                                         </NavItem>
                                         
                                         <NavItem>
-                                            <NavLink>Hi !  {this.props.user} {this.props.role}</NavLink>
+                                            <NavLink>Hi !  {this.props.user} {this.props.role} {this.props.qty}</NavLink>
                                         </NavItem>
                                         <NavItem>
-                                            <Link to="/login"><NavLink className="btn btn-default border-primary" style={{fontSize:"14px"}}><i class="fas fa-cart-arrow-down"></i >Cart </NavLink></Link>
+                                            <Link to="/cart"><NavLink className="btn btn-default border-primary" style={{fontSize:"14px"}}><i class="fas fa-cart-arrow-down"></i >Cart <span class="baget baget-light"> {this.props.cart} item </span> </NavLink></Link>
                                         </NavItem>
                                         <UncontrolledDropdown nav inNavbar>
                                                 <DropdownToggle nav caret>
@@ -105,7 +105,7 @@ class HeaderKu extends Component{
                                                      </Link> : null}
 
                                                     <DropdownItem>
-                                                        History Transaksi
+                                                        <Link to="/history" style={{textDecoration:"none",color:"none"}}>History Transaksi</Link>
                                                     </DropdownItem>
                                                     <DropdownItem>
                                                         edit Profile
@@ -133,7 +133,8 @@ class HeaderKu extends Component{
  const  mapStateToProps =(state)=>{
      return {
          user : state.user.username,
-         role : state.user.role
+         role : state.user.role,
+         cart : state.cart.iconcart
      }
  }
 

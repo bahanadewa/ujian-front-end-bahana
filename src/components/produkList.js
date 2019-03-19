@@ -2,6 +2,7 @@ import React from "react"
 import axios from 'axios'
 import {Link} from 'react-router-dom'
 import {urlAPI} from '../support/urlAPI'
+import queryString from 'query-string'
 import '../support/product.css'
 
 class Product extends React.Component {
@@ -19,8 +20,9 @@ class Product extends React.Component {
 
     renderProductJsx = ()=>{
         var jsx = this.state.listProduct.map((val)=>{
-            
 
+            // if (val.nama.toLowerCase().startsWith(this.props.search.toLowerCase() )){ // tranfer dari parents search
+                
             return(
                 <div className="card col-md-3 mr-3 mt-3" style={{width: '18rem'}}>
                     <Link to={'/product-detail/'+val.id}><img width="200px" src={val.img} className="card-img-top img" alt="..." /></Link>
@@ -41,14 +43,16 @@ class Product extends React.Component {
                     }
                     
 
-                    <p className="card-text" style={{display:"inline",marginLeft:"20px",fontWeight:'500'}}> Rp {val.harga- (val.harga*val.discount/100)} </p>
+                    <p className="card-text" style={{display:"inline",marginLeft:"20px",fontWeight:'500'}}> Rp {val.harga - (val.harga*val.discount/100)} </p>
 
                     <input type='button' className="d-block btn btn-primary" value="add to cart" />
                     </div>
                 </div>
             )
+            //  }
         })
         return jsx
+        
     } 
 
     render (){

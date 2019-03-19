@@ -15,11 +15,15 @@ import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import LastPageIcon from '@material-ui/icons/LastPage';
 import Axios from 'axios';
-import { urlAPI } from '../../support/urlAPI';
+import { urlAPI } from '../support/urlAPI';
 import {Button,Icon,Input,Label} from 'semantic-ui-react';
 import swal from "sweetalert";
 import {connect} from 'react-redux'
-import PageNotFound from '../pageNotFound'
+import PageNotFound from './pageNotFound'
+import cookie from 'universal-cookie'
+import {iconCart} from '../1.actions'
+
+
 
 
 const actionsStyles = theme => ({
@@ -115,6 +119,8 @@ const styles = theme => ({
   },
 });
 
+const objcookie = new cookie()
+
 class CustomPaginationActionsTable extends React.Component {
   state = {
     rows: [],
@@ -129,9 +135,17 @@ class CustomPaginationActionsTable extends React.Component {
   }
 
   getDataApi = () =>{
-        Axios.get(urlAPI+'/products')
-        .then ((res)=> this.setState({rows : res.data}))
+        var getcookie = objcookie.get('userData')
+        Axios.get(urlAPI+'/cart?namaUser='+getcookie)
+        .then ((res)=> {
+          this.setState({rows : res.data})
+          var a = this.state.rows.length
+          this.props.iconCart(a)  
+        })
         .catch((err)=> console.log(err))
+        
+        
+        
   }
 
   handleChangePage = (event, page) => {
@@ -139,56 +153,14 @@ class CustomPaginationActionsTable extends React.Component {
   };
 
   onBtnDelete = (id)=>{
-        Axios.delete(urlAPI+'/products/'+id)
+        Axios.delete(urlAPI+'/cart/'+id)
         .then((res)=>{
             this.getDataApi()
         })
         .catch((err)=> console.log(err))
   }
 
-  onBtnAdd = ()=>{
-    var nama = this.nama.inputRef.value;
-    var harga = parseInt(this.harga.inputRef.value);
-    var kategori = this.kategori.inputRef.value;
-    var discount = parseInt(this.discount.inputRef.value);
-    var deskripsi = this.deskripsi.inputRef.value;
-    var img = this.img.inputRef.value;
-
-
-    // property harus sesuai dengan db.json (property : variabel)
-    // post res.data (objek)
-    // get res.data (arr of objek) 
-    var newData={nama:nama , harga:harga, kategori:kategori, discount:discount, deskripsi:deskripsi , img:img}
-
-    if (nama === "" | harga ==="" |kategori ==="" |discount===""|deskripsi==="" | img===""){
-      swal({
-        title: "try again!",
-        icon: "error",
-      });
-        alert("HARUS DI ISI")
-    }else{
-         Axios.post(urlAPI+'/products',newData)
-         
-         .then((res)=>{
-              {
-                swal({
-                  title: "Add product",
-                  text: "add product success",
-                  icon: "success",
-                });
-              this.getDataApi()
-            } 
-         })
-         .catch((err)=> console.log(err))
-            this.nama.inputRef.value = ""
-            this.harga.inputRef.value =""
-            this.kategori.inputRef.value =""
-            this.discount.inputRef.value =""
-            this.deskripsi.inputRef.value =""
-            this.img.inputRef.value=""
-    }
-  }
-
+ 
   onBtnEditClick = (param) =>{
       this.setState({isEdit:true, editItem : param})
   }
@@ -198,28 +170,83 @@ class CustomPaginationActionsTable extends React.Component {
   }
 
   onBtnSave = ()=>{
-    var nama = this.namaEdit.inputRef.value ===""? this.state.editItem.nama: this.namaEdit.inputRef.value ;
-    var harga = this.hargaEdit.inputRef.value  ===""? this.state.editItem.harga: this.hargaEdit.inputRef.value;
-    var kategori = this.kategoriEdit.inputRef.value  ===""? this.state.editItem.kategori: this.kategoriEdit.inputRef.value;
-    var discount = this.discountEdit.inputRef.value  ===""? this.state.editItem.discount: this.discountEdit.inputRef.value;
-    var deskripsi = this.deskripsiEdit.inputRef.value  ===""? this.state.editItem.deskripsi: this.deskripsiEdit.inputRef.value;
-    var img = this.imgEdit.inputRef.value  ===""? this.state.editItem.img: this.imgEdit.inputRef.value;
+    var namaUser = this.state.editItem.namaUser
+    var product = this.state.editItem.product
+    var idUser = this.state.editItem.idUser
+    var harga = this.state.editItem.harga
+    var kategori =this.state.editItem.kategori
+    var discount = this.state.editItem.discount
+    var deskripsi = this.state.editItem.deskripsi
+    var productID = this.state.editItem.productID
+    var img = this.state.editItem.img
+
+    var qty = this.qtyEdit.inputRef.value  ===""? this.state.editItem.quantity: parseInt(this.qtyEdit.inputRef.value);
 
     var newData = {
-      nama : nama,
+      namaUser : namaUser,
+      product : product,
       harga : harga,
       kategori :kategori,
       discount : discount,
       deskripsi : deskripsi,
-      img : img
+      img : img,
+      idUser : idUser,
+      productID : productID,
+      quantity : qty
     }
-    Axios.put(urlAPI+'/products/'+this.state.editItem.id, newData)
+    Axios.put(urlAPI+'/cart/'+this.state.editItem.id,newData)
     .then((res) =>{
         this.getDataApi()
         swal('edit status','edit product success','success')
         this.setState({isEdit:false, editItem: {}})
     })
     .catch ((err) => {console.log(err)})
+  }
+
+
+  checkout = () => {
+    var getcookie = objcookie.get('userData')
+    
+    Axios.get(urlAPI+'/cart?idUser'+getcookie)
+      .then((res)=>{
+        for (var i=0; i<this.state.rows.length ; i++){
+          var date = new Date()
+          
+          // var year = date.getFullYear()
+
+          var idUser = res.data[i].idUser
+          var namaUser = res.data[i].namaUser
+          var product = res.data[i].product
+          var harga = res.data[i].harga
+          var kategori = res.data[i].kategori
+          var deskripsi = res.data[i].deskripsi
+          var img = res.data[i].img
+          var productID = res.data[i].productID
+          var quantity = res.data[i].quantity
+          var newpost = {date,idUser,namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
+          Axios.post(urlAPI+'/history',newpost)
+            .then ((res)=>{
+              swal('Check Out','Check Out success','success')
+            })
+            .catch((err)=>{
+              console.log(err)
+            })
+
+            Axios.delete(urlAPI+'/cart/'+this.state.rows[i].id)
+                .then ((res)=>{
+                  swal('keranjang kosong','keranjang kosong','success')
+                  this.getDataApi()
+                })
+                .catch((err)=>{
+                  swal('kerjanjang kosong','keranjang kosong','success')
+                })
+        }
+         
+           
+      })
+      .catch((res)=>{
+        
+      })
   }
 
 
@@ -230,12 +257,13 @@ class CustomPaginationActionsTable extends React.Component {
                 <TableCell component="th" scope="row">
                     {val.id}
                 </TableCell>
-                <TableCell align="">{val.nama}</TableCell>
-                <TableCell align="">Rp {val.harga}</TableCell>
+                <TableCell align="">{val.product}</TableCell>
                 <TableCell align="">{val.kategori}</TableCell>
-                <TableCell align="">{val.discount}</TableCell>
                 <TableCell align="">{val.deskripsi}</TableCell>
                 <TableCell align=""><img src={val.img} width="50px"/></TableCell>
+                <TableCell align="">{val.harga}</TableCell>
+                <TableCell align="">{val.quantity}</TableCell>
+                <TableCell align="">Rp {val.harga*val.quantity}</TableCell>
                 <TableCell>
                         <Button onClick={()=>this.onBtnEditClick(val)} animated color="teal">
                             <Button.Content visible>Edit</Button.Content>
@@ -262,14 +290,27 @@ class CustomPaginationActionsTable extends React.Component {
   };
 
 
+  totalcheckout =()=>{
+    var item = this.state.rows.length
+    var total = 0
+    
+
+    for (var i=0 ; i<item ; i++){
+        var totalhargabelanja =  this.state.rows[i].harga*this.state.rows[i].quantity
+        total += totalhargabelanja
+    }
+    return total
+  }
+
+
 
 
   render() {
     const { classes } = this.props;
     const { rows, rowsPerPage, page } = this.state;
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-    var {nama, harga,kategori, discount, deskripsi, img}= this.state.editItem
-    if (this.props.role === "admin")
+    var {product, harga,kategori, discount, deskripsi, img, quantity}= this.state.editItem
+    if (this.props.role === "user" | this.props.role === "admin") 
     {
     return (
         <div className="container">
@@ -279,12 +320,13 @@ class CustomPaginationActionsTable extends React.Component {
                             <TableHead>
                                 <TableRow>
                                     <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>ID</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>Nama</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>HARGA</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>CAT</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>DISC</TableCell>
-                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>DESC</TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>PRODUCT</TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> KATEGORI </TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>DESKRIPSI</TableCell>
                                     <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>IMG</TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> HARGA </TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>QTY</TableCell>
+                                    <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> TOTAL </TableCell>
                                 </TableRow>
                             </TableHead>
 
@@ -317,44 +359,34 @@ class CustomPaginationActionsTable extends React.Component {
                         </Table>
                     </div>
                 </Paper>
-                 {/* ========================================== ADD PRODUCT SECTION ================================================== */}
-                <Paper className="mt-5">
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                            <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>ADD PRODUCT</TableCell>
-                            </TableRow>
+                {/* ========================================== CHECKOUT ================================================== */}
 
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell>
-                                        <Input ref={input => this.nama=input} placeholder="masukan nama product" className="mt-2 ml-2 mb-2" />
-                                        
-                                        <Input ref={input => this.harga=input} className="ml-2" labelPosition='right' type='text' placeholder='Amount'>
-                                            <Label basic> Rp </Label>
-                                            <input />
-                                            <Label>.00</Label>
-                                        </Input>
+                {
+                  <Paper className="mt-5">
+                      <Table>
+                          <TableHead>
 
-                                        <Input ref={input => this.kategori=input} placeholder="kategoti" className="mt-2 ml-2 mb-2" />
-                                        <Input ref={input => this.discount=input} placeholder="Discount" className="mt-2 ml-2 mb-2" />
-                                        <Input ref={input => this.deskripsi=input} placeholder="Deskripsi" className="mt-2 ml-2 mb-2" />
-                                        <Input ref={input => this.img=input} placeholder="Img" className="mt-2 ml-2 mb-2" />
+                              <TableBody>
+                                  <TableRow>
+                                          <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> Total belanja anda </TableCell>
+                                          <TableCell style={{fontSize :'24px',fontWeight:"600px"}}> Rp {this.totalcheckout()} </TableCell>
 
+                                          <Button onClick={this.checkout} animated color="blue" className="ml-auto mt-2" >
+                                              <Button.Content style={{width:"400px", position:"center"}}  visible> CHECKOUT </Button.Content>
+                                              <Button.Content hidden>
+                                                  <Icon name='check' />
+                                              </Button.Content>
+                                          </Button>
+                                 
+                                  </TableRow>
+                              </TableBody>
 
-                                        <Button animated color="red" className="mt-2 ml-2 mb-2"   onClick={this.onBtnAdd}>
-                                            <Button.Content visible>add product</Button.Content>
-                                            <Button.Content hidden>
-                                                <Icon name='add' />
-                                            </Button.Content>
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
+                          </TableHead>  
+                      </Table>
+                  </Paper>
+                }
 
-                        </TableHead>  
-                    </Table>
-                </Paper>
+                
                 {/* ========================================== EDIT PRODUCT SECTION ================================================== */}
                 {
                   this.state.isEdit === true ?
@@ -362,25 +394,16 @@ class CustomPaginationActionsTable extends React.Component {
                       <Table>
                           <TableHead>
                               <TableRow>
-                              <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>EDIT PRODUCT{" "+nama}</TableCell>
+                              <TableCell style={{fontSize :'24px',fontWeight:"600px"}}>EDIT PRODUCT{" "+quantity}</TableCell>
                               </TableRow>
 
                               <TableBody>
                                   <TableRow>
                                       <TableCell>
-                                        <Input ref={input => this.namaEdit=input} placeholder={nama} className="mt-2 ml-2 mb-2" />
+                                          
 
-                                          <Input ref={input => this.hargaEdit=input} className="ml-2" labelPosition='right' type='text' placeholder={harga}>
-                                              <Label basic> Rp </Label>
-                                              <input />
-                                              <Label>.00</Label>
-                                          </Input>
-
-                                          <Input ref={input => this.kategoriEdit=input} placeholder={kategori} className="mt-2 ml-2 mb-2" />
-                                          <Input ref={input => this.discountEdit=input} placeholder={discount} className="mt-2 ml-2 mb-2" />
-                                          <Input ref={input => this.deskripsiEdit=input} placeholder={deskripsi} className="mt-2 ml-2 mb-2" />
-                                          <Input ref={input => this.imgEdit=input} placeholder="Img" className="mt-2 ml-2 mb-2" />
-
+                                          <Input ref={input => this.qtyEdit=input} placeholder={quantity} className="mt-2 ml-2 mb-2" />
+                                          
 
                                           <Button onClick={this.onBtnSave} animated color="teal" className="mt-2 ml-2 mb-2" >
                                               <Button.Content visible>Save</Button.Content>
@@ -416,10 +439,10 @@ CustomPaginationActionsTable.propTypes = {
 
 const mapStateToProps = (state) => {
   return{
-    role : state.user.role
+    role : state.user.role,
+    cart : state.cart.cart
   }
 }
 
 
-
-export default connect(mapStateToProps) (withStyles(styles)(CustomPaginationActionsTable));
+export default connect(mapStateToProps,{iconCart}) (withStyles(styles)(CustomPaginationActionsTable));

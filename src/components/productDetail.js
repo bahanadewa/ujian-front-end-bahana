@@ -2,6 +2,8 @@ import React from 'react'
 import Axios from 'axios'
 import { urlAPI } from '../support/urlAPI';
 import {connect} from 'react-redux';
+import swal from 'sweetalert'
+// import {addcartglobal} from '../1.actions'
 
 class ProductDetail extends React.Component{
     state = {product : {}}
@@ -28,6 +30,66 @@ class ProductDetail extends React.Component{
            this.refs.number.value = 0
         } 
     }
+
+    addcart =()=>{
+
+            var quantity = parseInt( this.refs.number.value)
+            var idUser = this.props.id
+            var namaUser = this.props.nama
+            var product = this.state.product.nama
+            var harga = this.state.product.harga
+            var kategori = this.state.product.kategori
+            var deskripsi = this.state.product.deskripsi
+            var img = this.state.product.img
+            var productID = this.state.product.id
+
+            var newdata = {idUser, namaUser,product,harga,kategori,deskripsi,img,productID,quantity}
+
+            // this.props.addcartglobal(newdata)
+
+            Axios.get(urlAPI+'/cart?idUser='+this.props.id+"&productID="+newdata.productID)
+            .then((res)=>{
+                if (res.data.length>0){
+                    quantity = res.data[0].quantity+quantity
+                    Axios.put(urlAPI+'/cart/'+res.data[0].id,{...newdata,quantity })
+                    swal('added','edit product success','success')
+                }else{
+                    Axios.post(urlAPI+'/cart',newdata)
+                    swal('added','add product success','success')
+                    
+                }
+            })
+            .catch((err)=>{
+                    console.log(err)
+            })
+
+            // Axios.get(urlAPI+'/cart')
+            // .then((res)=>{
+            //     if (res.data.length == 0){
+            //         Axios.get(urlAPI+'/cart?idUser='+this.props.id+"&productID="+newdata.productID)
+            //         .then((rer)=>{
+            //             Axios.post(urlAPI+'/cart',newdata)
+            //         alert ("masuk")
+            //         })
+            //         .catch((err)=>{
+
+            //         })
+
+            //     }else{
+            //         Axios.get(urlAPI+'/cart?idUser='+this.props.id+"&productID="+newdata.productID)
+            //         .then((res) => {
+            //             quantity = res.data[0].quantity+quantity
+            //             Axios.put(urlAPI+'/cart/'+res.data[0].id,{...newdata,quantity })
+            //             alert('masukkk')
+                        
+            //         })
+            //     }
+            // })
+            // .catch((err)=>{
+            //         console.log(err)
+            // })
+
+}
     
     render(){
         var {nama, img, discount, deskripsi,harga} = this.state.product
@@ -94,8 +156,8 @@ class ProductDetail extends React.Component{
                                 :
                                 <div className="row mt-4">
                                         <input className="btn border-primary col-md-3"  value="wishlist" />
-                                        <input className="btn btn-primary col-md-3" value="beli sekarang" />
-                                        <input className="btn btn-success col-md-3" value="masukan ke keranjang" />
+                                        <input className="btn btn-primary col-md-3"  value="beli sekarang" />
+                                        <input className="btn btn-success col-md-3" onClick={this.addcart} value="masukan ke keranjang" />
                                 </div>
                                 }
                                 
@@ -113,7 +175,8 @@ class ProductDetail extends React.Component{
 const  mapStateToProps =(state)=>{
     return {
         nama : state.user.username,
-        role : state.user.role
+        role : state.user.role,
+        id : state.user.id
     }
 }
 

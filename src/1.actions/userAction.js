@@ -55,7 +55,7 @@ export const keepLogin = (cookie)=>{
                     payload : {
                         username : res.data[0].username,
                         role : res.data[0].role,
-                        id : res.data[0].username
+                        id : res.data[0].id
                     }
                 })
             }

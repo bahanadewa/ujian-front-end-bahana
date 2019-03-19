@@ -10,9 +10,11 @@ import ProductDetail from './components/productDetail'
 import { Route, withRouter, Switch } from 'react-router-dom'
 import {connect} from  'react-redux'
 import ScrollToTop from './components/scrollToTop'
+import Cart from './components/cart'
+import History from './components/history'
 
 import cookie from 'universal-cookie'
-import {keepLogin} from './1.actions'
+import {keepLogin,keepLoginCart} from './1.actions'
 import './App.css';
 
 // WITHROUTER => UNTUK TERSABUNG KE REDUCEER DENGAN CONNECT TAPI DI DALAM KOMPONEN ADA ROUTNG
@@ -23,6 +25,11 @@ class App extends Component {
       var terserah = objCookie.get('userData')
       if (terserah !== undefined){
         this.props.keepLogin(terserah)
+      }
+
+      var terserah1 = objCookie.get('cookieCart')
+      if (terserah1 !== undefined){
+        this.props.keepLoginCart(terserah1)
       }
       
   }
@@ -38,6 +45,8 @@ class App extends Component {
               <Route path='/product' component={Product}/>
               <Route path='/manage' component={ManageProduct}exact />
               <Route path='/product-detail/:id' component={ProductDetail}exact />
+              <Route path='/cart' component={Cart} exact />
+              <Route path='/history' component={History} exact />
               <Route path='*' component={PageNotFound} exact />    
             </Switch>
           </ScrollToTop>
@@ -47,4 +56,4 @@ class App extends Component {
   }
 }
 
-export default withRouter(connect (null,{keepLogin}) (App)) ;
+export default withRouter(connect (null,{keepLogin,keepLoginCart}) (App)) ;
